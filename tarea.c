@@ -22,6 +22,16 @@ typedef struct Tablero{
 
 }tablero;
 
+
+/*
+Nombre: shMemoryCreate
+Parametros: ninguno
+Retorno: void
+Descripcion: Crea la shared memory con el 
+nombre definido SMOBJ_NAME.
+Extra: The POSIX shared memory object implementation on Linux 2.4 makes 
+use of a dedicated file system, which is normally mounted under /dev/shm.
+*/
 void shMemoryCreate(void){
    int fd;
    fd = shm_open (SMOBJ_NAME, O_CREAT | O_RDWR  , 00700); /* create s.m object*/
@@ -59,7 +69,7 @@ Parametros: fd (int)
 Retorno: tablero* 
 Descripcion: Recibe el fd de la memoria compartida y 
 devuelve un puntero al tablero.
-Dudas: QUE ESTOY HACIENDO CON LOS VOID POINTER AAA
+Extra: QUE ESTOY HACIENDO CON LOS VOID POINTER AAA
 */
 tablero* shMemoryGet(int fd){
     tablero* table;
@@ -80,7 +90,7 @@ Retorno: void
 Descripcion: Cierra y elimina(?) la
 shared memory creada.
 */
-void shMemoryClose(){
+void shMemoryClose(void){
     int ret;
     ret = shm_unlink(SMOBJ_NAME);
     if(ret == -1){
@@ -91,7 +101,13 @@ void shMemoryClose(){
 
 
 
-
+/*
+Nombre: showTable
+Parametros: void
+Retorno:  void
+Descripcion: Imprime una tabla en Consola.
+Extra: Asumo que no se usara o se modificara ampliamente.
+*/
 void showTable(){
 
     printf("|   20 |?  21  |??  22 |?  23  |??  24 |    25 |?   26 |    27 |    Fin|\n");
@@ -102,11 +118,27 @@ void showTable(){
 
 }
 
+/*
+Nombre: dado
+Parametros: void
+Retorno: int
+Descripcion: Entrega un numero pseudo-random
+entre 1 y 6 para simular el dado.
+Extra: Necesita haber hecho srand antes.
+*/
 int dado(){
     int r = rand();      // Returns a pseudo-random integer between 0 and RAND_MAX.
     return r%5 + 1;
 }
 
+/*
+Nombre: soyPadre
+Parametros: Array de 4 int con los process id de los fork
+Retorno: int (basicamente bool)
+Descripcion: Entrega 1 si es el proceso padre, y 0 
+si es que no.
+Extra: que padre xd
+*/
 int soyPadre(int ids[4]){
     if((ids[0] != 0) & (ids[1] != 0) & (ids[2] != 0) & (ids[3] != 0)){
         return 1;
