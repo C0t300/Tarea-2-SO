@@ -16,11 +16,153 @@ typedef struct Tablero{
     int efecto; // 0->10
     int turnos; // 0 -> 1 | 0 = normal | 1 = al reves
     int sentido; // 0 -> 1 | 0 = normal | 1 = al reves
-    int pos[4]; // 0 -> 28 | 0 = inicio | 28 = final
-    int pregunta[26];
-    int preguntadoble[26];
+    int pos[4]; // 0 -> 29 | 0 = inicio | 29 = final
+    int pregunta[27]; // 0 -> 1 | 0 = no ? | 1 = ?
+    int preguntadoble[27]; // 0 -> 1 | 0 = no ?? | 1 = ??
 
 }tablero;
+
+/*
+Nombre: initTablero
+Parametros: tablero* table (tabla)
+Retorno: void
+Descripcion: Inicia el tablero
+y sus casillas (?) (??).
+*/
+void initTablero(tablero* table){
+
+    int i;
+
+    table -> efecto = 0;
+    table -> turnos = 0;
+    table -> sentido = 0;
+
+    for(i = 0; i < 4; i++){
+        table -> pos[i] = 0;
+    }
+
+    
+    for(i = 0; i < 26; i++){
+        table -> pregunta[i] = 0;
+        table -> preguntadoble[i] = 0;
+    }
+    table -> pregunta[1] = 1;
+    table -> pregunta[3] = 1;
+    table -> pregunta[5] = 1;
+    table -> pregunta[11] = 1;
+    table -> pregunta[13] = 1;
+    table -> pregunta[20] = 1;
+    table -> pregunta[22] = 1;
+    table -> pregunta[24] = 1;
+    table -> pregunta[26] = 1;
+
+    table -> preguntadoble[15] = 1;
+    table -> preguntadoble[21] = 1;
+    table -> preguntadoble[23] = 1;
+    table -> preguntadoble[25] = 1;
+
+}
+
+/*
+Nombre: avanzarJugador
+Parametros: tablero* table (tabla), int jugador (jugador 1 == 0)
+Retorno: void
+Descripcion: Hace avanzar al jugador
+previo revisar el sentido del tablero.
+*/
+void avanzarJugador(tablero* table, int jugador){
+    if(table -> sentido == 0){
+        if(table -> pos[jugador] < 29){
+            table -> pos[jugador]++;
+        }
+    }
+    else if(table -> sentido == 1){
+        if(table -> pos[jugador] > 0){
+            table -> pos[jugador]--;
+        }
+    }
+    else{
+        printf("table -> sentido tiene algo raro. \n");
+        exit(1);
+    }
+}
+
+/*
+Nombre: retrocederJugador
+Parametros: tablero* table (tabla), int jugador (jugador 1 == 0)
+Retorno: void
+Descripcion: Hace retroceder al jugador
+previo revisar el sentido del tablero.
+*/
+void retrocederJugador(tablero* table, int jugador){
+    if(table -> sentido == 0){
+        if(table -> pos[jugador] > 0){
+            table -> pos[jugador]--;
+        }
+    }
+    else if(table -> sentido == 1){
+        if(table -> pos[jugador] < 29){
+            table -> pos[jugador]++;
+        }
+    }
+    else{
+        printf("table -> sentido tiene algo raro. \n");
+        exit(1);
+    }
+}
+
+
+/*
+Nombre: vueltaPreguntas
+Parametros: tablero* table (tabla)
+Retorno: void
+Descripcion: Cambias las casillas 
+? por las ?? y viceversa.
+*/
+void vueltaPreguntas(tablero* table){
+    int i;
+    for(i = 0; i < 26; i++){
+        if(table -> pregunta[i] == 1){
+            table -> preguntadoble[i] = 1;
+            table -> pregunta[i] = 0;
+        }
+        else if(table -> preguntadoble[i] == 1){
+            table -> preguntadoble[i] = 0;
+            table -> pregunta[i] = 1;
+        }
+    }
+}
+
+/*
+Nombre: juegoValido
+Parametros: tablero* table (tabla)
+Retorno: int (bool)
+Descripcion: Revisa si es que algun 
+jugador llego a la meta.
+*/
+int juegoValido(tablero* table){
+    int i;
+    if(table -> sentido == 0){
+        for(i = 0; i < 4; i++){
+            if(table -> pos[i] == 29){
+                return 0;
+            }
+        }
+    }
+    else if(table -> sentido == 1){
+        for(i = 0; i < 4; i++){
+            if(table -> pos[i] == 0){
+                return 0;
+            }
+        }
+    }
+    else{
+        printf("table -> sentido tiene algo extraño: %d\n", table -> sentido);
+        exit(1);
+    }
+
+    return 1;
+}
 
 
 /*
@@ -99,6 +241,31 @@ void shMemoryClose(void){
     }
 }
 
+/*
+Nombre: printWinner
+Parametros: tablero* table (tabla)
+Retorno: void
+Descripcion: Imprime el ganador.
+*/
+void printWinner(tablero* table){
+    int winner;
+    int i;
+    if(table -> sentido == 0){
+        for(i = 0; i < 4; i++){
+            if(table -> pos[i] == 29){
+                winner = i+1;
+            }
+        }
+    }
+    else if(table -> sentido == 1){
+        for(i = 0; i < 4; i++){
+            if(table -> pos[i] == 0){
+                winner = i+1;
+            }
+        }
+    }
+    printf("Gano el jugador %d!\n", winner);
+}
 
 
 /*
@@ -146,6 +313,17 @@ int soyPadre(int ids[4]){
     return 0;
 }
 
+/*
+Nombre: printLugares
+Parametros: tablero* table (tabla)
+Retorno: void
+Descripcion: Imprime las posiciones.
+Extra: Debug only
+*/
+void printLugares(tablero* table){
+    printf("J1: %d | J2: %d | J3: %d | J4: %d\n", table -> pos[0], table -> pos[1], table -> pos[2], table -> pos[3]);
+}
+
 int main(){
 	//showTable();
     
@@ -180,7 +358,7 @@ int main(){
     shMemoryCreate();
     fd = shMemoryOpen();
     table = shMemoryGet(fd);
-    table -> efecto = 3; // seg fault
+    initTablero(table);
     
 
     for(i = 0; i < 4; i++){     // Se crean los 4 procesos hijos que representan a los jugadores
@@ -231,10 +409,10 @@ int main(){
 
 
     srand(time(NULL) ^ (getpid()<<16)); // Init, para dado()
-    int juego = 1;
     int turno = 0;
+    int dice;
 
-    while(juego){
+    while(juegoValido(table)){
 
         if(soyPadre(jugador)){
             if (turno == 4){
@@ -244,6 +422,7 @@ int main(){
                 turno++;
             }
             sleep(1);
+            printLugares(table);
 
             if(turno == 1){
                 //dile a jugador[0] que juegue
@@ -280,33 +459,55 @@ int main(){
             if (!strcmp(buffer, "q")){
                 return 0;
             }
-            printf("Dado: %d\n", dado());
+            dice = dado();
+            printf("Dado: %d\n", dice);
+            for(i = 0; i < dice; i++){
+                avanzarJugador(table, 0);
+            }
             write(pipe10[1], &mensaje, 1);
         }
         else if (jugador[1] == 0){
             char mensaje;
             while(read(pipe02[0], &mensaje, 1) < 0){}
-            printf("Dado j2: %d\n", dado());
+            dice = dado();
+            printf("Dado: %d\n", dice);
+            for(i = 0; i < dice; i++){
+                avanzarJugador(table, 1);
+            }
             write(pipe20[1], &mensaje, 1);
         }
         else if (jugador[2] == 0){
             char mensaje;
             while(read(pipe03[0], &mensaje, 1) < 0){}
-            printf("Dado j3: %d\n", dado());
+            dice = dado();
+            printf("Dado: %d\n", dice);
+            for(i = 0; i < dice; i++){
+                avanzarJugador(table, 2);
+            }
             write(pipe30[1], &mensaje, 1);
         }
         else if (jugador[3] == 0){
             char mensaje;
             while(read(pipe04[0], &mensaje, 1) < 0){}
-            printf("Dado j4: %d\n", dado());
+            dice = dado();
+            printf("Dado: %d\n", dice);
+            for(i = 0; i < dice; i++){
+                avanzarJugador(table, 3);
+            }
             write(pipe40[1], &mensaje, 1);
         }
 
         
     }
 
-    
+    if(soyPadre(jugador)){
+        printLugares(table);
+        printWinner(table);
+        shMemoryClose();
 
+    }
+
+    
 
 }
 
