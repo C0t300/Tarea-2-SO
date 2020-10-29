@@ -55,7 +55,7 @@ Descripcion: Abre la Shared Memory y retorna el fd
 */
 int shMemoryOpen(void){
     int fd;
-    fd = shm_open (SMOBJ_NAME,  O_RDWR  , 00200); /* open s.m object*/
+    fd = shm_open (SMOBJ_NAME,  O_RDWR  , 00700); /* open s.m object*/
     if(fd == -1){
        printf("Error file descriptor %s\n", strerror(errno));
 	   exit(1);
@@ -74,7 +74,7 @@ Extra: QUE ESTOY HACIENDO CON LOS VOID POINTER AAA
 tablero* shMemoryGet(int fd){
     tablero* table;
     void *ptr;
-    ptr = mmap(NULL, sizeof(tablero), PROT_READ, MAP_SHARED, fd, 0);
+    ptr = mmap(NULL, sizeof(tablero), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if(ptr == MAP_FAILED){
         printf("Map failed in read process: %s\n", strerror(errno));
         exit(1);
@@ -174,6 +174,13 @@ int main(){
 
     int jugador[4];
     int i;
+    int fd;     // fd para sh memory
+    tablero* table;
+
+    shMemoryCreate();
+    fd = shMemoryOpen();
+    table = shMemoryGet(fd);
+    table -> efecto = 3; // seg fault
     
 
     for(i = 0; i < 4; i++){     // Se crean los 4 procesos hijos que representan a los jugadores
@@ -217,6 +224,9 @@ int main(){
 
         close(pipe04[0]);
         close(pipe40[1]);
+        
+        
+
     }
 
 
