@@ -13,7 +13,7 @@
 
 typedef struct Tablero{
 
-    int efecto; // 0->10
+    int efecto; // 0 -> 10 | 0 = normal | 1 -> 10 = efecto
     int turnos; // 0 -> 1 | 0 = normal | 1 = al reves
     int sentido; // 0 -> 1 | 0 = normal | 1 = al reves
     int pos[4]; // 0 -> 29 | 0 = inicio | 29 = final
@@ -286,6 +286,36 @@ void showTable(){
 }
 
 /*
+Nombre: todosRetroceden
+Parametros: tablero* table (tabla), int jugadorActivador (jugador1 = 0)
+Retorno:  void
+Descripcion: Hace retroceder a todos menos al 
+jugador activador. Para (?)
+*/
+void todosRetroceden(tablero* table, int jugadorActivador){
+	int i;
+	for(i = 0;i < 4;i++){
+		if(i != jugadorActivador){
+			retrocederJugador(table, i);
+		}
+	}
+}
+
+/*
+Nombre: todosRetrocedenDoble
+Parametros: tablero* table (tabla), int jugadorActivador (jugador1 = 0)
+Retorno:  void
+Descripcion: Hace retroceder dos veces
+a todos menos al jugador activador. Para (?).
+*/
+void todosRetrocedenDoble(tablero* table, int jugadorActivador){
+	todosRetroceden(table, jugadorActivador);
+	todosRetroceden(table, jugadorActivador);
+}
+
+
+
+/*
 Nombre: dado
 Parametros: void
 Retorno: int
@@ -296,6 +326,68 @@ Extra: Necesita haber hecho srand antes.
 int dado(){
     int r = rand();      // Returns a pseudo-random integer between 0 and RAND_MAX.
     return r%5 + 1;
+}
+
+/*
+Nombre: random10
+Parametros: void
+Retorno:  void
+Descripcion: Entrega un numero random entre 0 y 9.
+*/
+int random10(){
+    int r = rand();      // Returns a pseudo-random integer between 0 and RAND_MAX.
+    return r%10;	// 0 -> 9
+}
+
+/*
+Nombre: randomPregunta
+Parametros: void
+Retorno:  void
+Descripcion: Entrega un numero random 
+correspondiente a una casilla ?.
+*/
+int randomPregunta(){
+	int rand = random10();
+	rand = rand % 5;
+	rand++;
+	return rand;
+}
+
+/*
+Nombre: randomPreguntaDoble
+Parametros: void
+Retorno:  void
+Descripcion: Entrega un numero random 
+correspondiente a una casilla ??.
+*/
+int randomPreguntaDoble(){
+	int rand = randomPregunta();
+	return(rand + 5);
+}
+
+/*
+Nombre: getPrimero
+Parametros: tablero* table
+Retorno: int[2] | int[0] = jugador primero 
+int[1] = pos de jug primero
+Descripcion: Obtiene el jugador en primer
+lugar, y su posicion.
+*/
+int* getPrimero(tablero* table){
+	int maximo = 0;
+	int jugMax = 0;
+	int i;
+	for(i = 0; i < 4; i++){
+		if((table -> pos[i]) > maximo){
+			maximo = table -> pos[i];
+			jugMax = i;
+		}
+	}
+
+	static int retorno[2];
+	retorno[0] = jugMax;
+	retorno[1] = maximo;
+	return retorno;
 }
 
 /*
@@ -322,6 +414,218 @@ Extra: Debug only
 */
 void printLugares(tablero* table){
     printf("J1: %d | J2: %d | J3: %d | J4: %d\n", table -> pos[0], table -> pos[1], table -> pos[2], table -> pos[3]);
+}
+
+/*
+Nombre: cambioSentido
+Parametros: tablero* table (tabla)
+Retorno:  void
+Descripcion: Cambia el sentido del tablero.
+*/
+void cambioSentido(tablero* table){
+	int s = table -> sentido;
+	if(s == 0){
+		table -> sentido = 1;
+	}
+	else if(s == 1){
+		table -> sentido = 0;
+	}
+	else{
+		printf("table -> sentido tiene algo raro \n");
+		exit(1);
+	}
+}
+
+/*
+Nombre: jugadorSiguente
+Parametros: tablero* table (tabla), turno(pasado)
+Retorno:  int (turno siguente)
+Descripcion: Entrega el turno siguente.
+*/
+int jugadorSiguente(tablero* table, int turno){
+	int turnoSig;
+	if((table -> turnos) == 0){
+		if (turno == 4){
+			turnoSig = 1;
+		}
+		else{
+			turnoSig = turno + 1;
+		}
+	}
+	else if((table -> turnos) == 1){
+		if(turno == 1){
+			turnoSig = 4;
+		}
+		else{
+			turnoSig = turno - 1;
+		}
+	}
+	else{
+		printf("table -> turnos tiene algo extraño\n");
+		exit(1);
+	}
+	return turnoSig;
+}
+
+/*
+Nombre: checkEfecto
+Parametros: tablero* table (tabla)
+Retorno:  int (bool)
+Descripcion: Revisa si hay que jugar
+o hacer algun efecto en particular.
+*/
+int checkEfecto(tablero* table){
+	if((table -> efecto) == 0){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+/*
+Nombre: getEfecto
+Parametros: tablero* table (tabla)
+Retorno:  int (efecto)
+Descripcion: Retorna el codigo del efecto.
+*/
+int getEfecto(tablero* table){
+	if((table -> efecto) < 0){
+		printf("table -> efecto tiene algo extraño: %d\n", table -> efecto);
+		exit(1);
+	}
+	else if((table -> efecto) > 11){
+		printf("table -> efecto tiene algo extraño: %d\n", table -> efecto);
+		exit(1);
+	}
+	else{
+		return table -> efecto;
+	}
+}
+
+/*
+Nombre: isPregunta
+Parametros: tablero* table (tablero), int jugador
+Retorno:  int (bool)
+Descripcion: Entrega 1 si es que la casilla 
+actual del jugador corresponde a ?.
+*/
+int isPregunta(tablero* table, int jugador){
+	int pos = table -> pos[jugador];
+	return (table -> pregunta[pos-1]);
+}
+
+/*
+Nombre: isPreguntaDoble
+Parametros: tablero* table (tablero), int jugador
+Retorno:  int (bool)
+Descripcion: Entrega 1 si es que la casilla 
+actual del jugador corresponde a ??.
+*/
+int isPreguntaDoble(tablero* table, int jugador){
+	int pos = table -> pos[jugador];
+	return (table -> preguntadoble[pos-1]);
+}
+
+/*
+Nombre: hacerEfecto
+Parametros: tablero* table, int efecto, int jugador
+Retorno:  void
+Descripcion: Hace el efecto correspondiente.
+*/
+void hacerEfecto(tablero* table, int efecto, int jugador){
+	if(efecto == 1){
+		printf("jugador retrocede uno\n");
+	}
+	else if(efecto == 2){
+		printf("el resto retrocede uno \n");
+	}
+	else if(efecto == 3){
+		printf("el jugador avanza uno\n");
+	}
+	else if(efecto == 4){
+		printf("el siguente jugador no puede jugar \n");
+	}
+	else if(efecto == 5){
+		printf("cambio sentido turnos\n");
+	}
+	else if(efecto == 6){
+		printf("todos retroceden dos\n");
+	}
+	else if(efecto == 7){
+		printf("los demas avanzan hasta la sig blanca\n");
+	}
+	else if(efecto == 8){
+		printf("jugador cambia con el ultimo\n");
+	}
+	else if(efecto == 9){
+		printf("jugador cambia con el primero\n");
+	}
+	else if(efecto == 10){
+		printf("cambio sentido tablero");
+	}
+	else{
+		printf("hacer efecto recibio un efecto extraño: %d\n", efecto);
+	}
+}
+
+/*
+Nombre: activarPregunta
+Parametros: tablero* table, int jugador
+Retorno:  void
+Descripcion: Hace los llamados para activar
+una casilla ?
+*/
+void activarPregunta(tablero* table, int jugador){
+	int pos = table -> pos[jugador];
+	pos--;
+	table -> pregunta[pos] = 0;
+	hacerEfecto(table, randomPregunta(), jugador);
+}
+
+/*
+Nombre: activarPregunta
+Parametros: tablero* table, int jugador
+Retorno:  void
+Descripcion: Hace los llamados para activar
+una casilla ??
+*/
+void activarPreguntaDoble(tablero* table, int jugador){
+	int pos = table -> pos[jugador];
+	pos--;
+	table -> preguntadoble[pos] = 0;
+	hacerEfecto(table, randomPreguntaDoble(), jugador);
+}
+
+/*
+Nombre: pipeEfecto
+Parametros: int jugadorActivador, int* pipes
+Retorno:  void
+Descripcion: Hace los llamados a las pipes de los otros
+jugadores para hacer uso de los efectos.
+*/
+void pipeEfecto(int jugadorActivador, int* pipe01, int* pipe10, int* pipe02, int* pipe20, int* pipe03, int* pipe30, int* pipe04, int* pipe40){
+	char mensaje = '0';
+	if(jugadorActivador != 0){
+		write(pipe01[1], &mensaje, 1);
+    	while(read(pipe10[0], &mensaje, 1) < 0){}
+	}
+	if(jugadorActivador != 1){
+		write(pipe02[1], &mensaje, 1);
+    	while(read(pipe20[0], &mensaje, 1) < 0){}
+	}
+	if(jugadorActivador != 2){
+		write(pipe03[1], &mensaje, 1);
+    	while(read(pipe30[0], &mensaje, 1) < 0){}
+	}
+	if(jugadorActivador != 3){
+		write(pipe04[1], &mensaje, 1);
+    	while(read(pipe40[0], &mensaje, 1) < 0){}
+	}
+	if((jugadorActivador > 3) | (jugadorActivador < 0)){
+		printf("jugador activador tiene algo raro: %d\n", jugadorActivador);
+		exit(1);
+	}
 }
 
 int main(){
@@ -402,8 +706,6 @@ int main(){
 
         close(pipe04[0]);
         close(pipe40[1]);
-        
-        
 
     }
 
@@ -415,36 +717,36 @@ int main(){
     while(juegoValido(table)){
 
         if(soyPadre(jugador)){
-            if (turno == 4){
-                turno = 1;
-            }
-            else{
-                turno++;
-            }
+			if(!checkEfecto(table)){
+				pipeEfecto(turno-1, pipe01, pipe10, pipe02, pipe20, pipe03, pipe30, pipe04, pipe40);
+				table -> efecto = 0;
+			}
+			turno = jugadorSiguente(table, turno);
             sleep(1);
             printLugares(table);
+			
 
             if(turno == 1){
                 //dile a jugador[0] que juegue
                 // write(pipe12[1],&mensaje,1);  // pongo el mensaje en la pipe        
                 // while((read(pipe21[0],&mensaje,1))<0){}; //espero por la respuesta 
-                char mensaje = '1';
+                char mensaje = '0';
                 write(pipe01[1], &mensaje, 1);
                 while(read(pipe10[0], &mensaje, 1) < 0){}
             }
             else if(turno == 2){
-                char mensaje = '1';
+                char mensaje = '0';
                 write(pipe02[1], &mensaje, 1);
                 while(read(pipe20[0], &mensaje, 1) < 0){}
 
             }
             else if(turno == 3){
-                char mensaje = '1';
+                char mensaje = '0';
                 write(pipe03[1], &mensaje, 1);
                 while(read(pipe30[0], &mensaje, 1) < 0){}
             }
             else if(turno == 4){
-                char mensaje = '1';
+                char mensaje = '0';
                 write(pipe04[1], &mensaje, 1);
                 while(read(pipe40[0], &mensaje, 1) < 0){}
             }
@@ -454,46 +756,103 @@ int main(){
         else if (jugador[0] == 0){
             char mensaje;
             while(read(pipe01[0], &mensaje, 1) < 0){}
-            printf("Jugador 1 (q) para salir (n) para jugar: \n");
-            scanf("%s", buffer);
-            if (!strcmp(buffer, "q")){
-                return 0;
-            }
-            dice = dado();
-            printf("Dado: %d\n", dice);
-            for(i = 0; i < dice; i++){
-                avanzarJugador(table, 0);
-            }
-            write(pipe10[1], &mensaje, 1);
+			if(checkEfecto(table)){
+				printf("Jugador 1 (q) para salir (n) para jugar: \n");
+				scanf("%s", buffer);
+				if (!strcmp(buffer, "q")){
+					exit(1);
+					return 0;
+				}
+				dice = dado();
+				printf("Dado: %d\n", dice);
+				for(i = 0; i < dice; i++){
+					avanzarJugador(table, 0);
+				}
+				if(isPregunta(table, 0)){
+					printf("Caiste en (?).\n");
+					printf("Activar? s/n: \n");
+					char activate[20];
+					scanf("%s", activate);
+					if(strcmp(activate, "s")){
+						activarPregunta(table, 0);
+					}
+				}
+				else if(isPreguntaDoble(table, 0)){
+					printf("Caiste en ( ? ? ).\n");
+					printf("Activar? s/n: \n");
+					char activate[20];
+					scanf("%s", activate);
+					if(strcmp(activate, "s")){
+						activarPreguntaDoble(table, 0);
+					}
+				}
+			}
+			else{
+				hacerEfecto(table, getEfecto(table), 0);
+			}
+			write(pipe10[1], &mensaje, 1);
         }
         else if (jugador[1] == 0){
             char mensaje;
             while(read(pipe02[0], &mensaje, 1) < 0){}
-            dice = dado();
-            printf("Dado: %d\n", dice);
-            for(i = 0; i < dice; i++){
-                avanzarJugador(table, 1);
-            }
+			if(checkEfecto(table)){
+				dice = dado();
+				printf("Dado: %d\n", dice);
+				for(i = 0; i < dice; i++){
+					avanzarJugador(table, 1);
+				}
+				if(isPregunta(table, 1)){
+					activarPregunta(table, 1);
+				}
+				else if(isPreguntaDoble(table, 1)){
+					activarPreguntaDoble(table, 1);
+				}
+			}
+			else{
+				hacerEfecto(table, getEfecto(table), 1);
+			}
             write(pipe20[1], &mensaje, 1);
         }
         else if (jugador[2] == 0){
             char mensaje;
             while(read(pipe03[0], &mensaje, 1) < 0){}
-            dice = dado();
-            printf("Dado: %d\n", dice);
-            for(i = 0; i < dice; i++){
-                avanzarJugador(table, 2);
-            }
+            if(checkEfecto(table)){
+				dice = dado();
+				printf("Dado: %d\n", dice);
+				for(i = 0; i < dice; i++){
+					avanzarJugador(table, 2);
+				}
+				if(isPregunta(table, 2)){
+					activarPregunta(table, 2);
+				}
+				else if(isPreguntaDoble(table, 2)){
+					activarPreguntaDoble(table, 2);
+				}
+			}
+			else{
+				hacerEfecto(table, getEfecto(table), 2);
+			}
             write(pipe30[1], &mensaje, 1);
         }
         else if (jugador[3] == 0){
             char mensaje;
             while(read(pipe04[0], &mensaje, 1) < 0){}
-            dice = dado();
-            printf("Dado: %d\n", dice);
-            for(i = 0; i < dice; i++){
-                avanzarJugador(table, 3);
-            }
+			if(checkEfecto(table)){
+				dice = dado();
+				printf("Dado: %d\n", dice);
+				for(i = 0; i < dice; i++){
+					avanzarJugador(table, 3);
+				}
+				if(isPregunta(table, 3)){
+					activarPregunta(table, 3);
+				}
+				else if(isPreguntaDoble(table, 3)){
+					activarPreguntaDoble(table, 3);
+				}
+			}
+			else{
+				hacerEfecto(table, getEfecto(table), 3);
+			}
             write(pipe40[1], &mensaje, 1);
         }
 
