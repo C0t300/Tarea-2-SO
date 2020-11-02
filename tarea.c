@@ -281,13 +281,26 @@ Retorno:  void
 Descripcion: Imprime una tabla en Consola.
 Extra: Asumo que no se usara o se modificara ampliamente.
 */
-void showTable(){
+void showTable(tablero* table){
 
-    printf("|   20 |?  21  |??  22 |?  23  |??  24 |    25 |?   26 |    27 |    Fin|\n");
-    printf("|   19 |\n");
-    printf("|   18 |   17  |?   16 |   15  |?   14 |    13 |?   12 |    11 |    10 |\n");
-    printf("                                                               |    9  |\n");
-    printf("|Inicio|    1  |?   2  |    3  |?   4  |    5  |?   6  |    7  |    8  |\n");
+    if (table -> sentido == 0){
+        printf("|   20  |?  21  |??  22 |?  23  |??  24 |    25 |?   26 |    27 |    Fin|\n");
+        printf("|   19  |\n");
+        printf("|   18  |   17  |?   16 |   15  |?   14 |    13 |?   12 |    11 |    10 |\n");
+        printf("                                                                |    9  |\n");
+        printf("|Inicio |    1  |?   2  |    3  |?   4  |    5  |?   6  |    7  |    8  |\n");
+    }
+    else if(table -> sentido == 1){
+		printf("|   20  |??  21 |?  22  |??  23 |?  24  |    25 |??  26 |    27 | Inicio|\n");
+        printf("|   19  |\n");
+        printf("|   18  |   17  |??  16 |   15  |??  14 |    13 |??  12 |    11 |    10 |\n");
+        printf("                                                                |    9  |\n");
+        printf("|Fin    |   1   |??  2  |   3   |??  4  |    5  |??   6 |    7  |    8  |\n");
+    }
+    else{
+        printf("table -> sentido tiene algo raro: %d\n", table-> sentido);
+        exit(1);
+    }
 
 }
 
@@ -923,14 +936,141 @@ void efectoSecundario(tablero* table, int jugador){
 	}
 }
 
-char* getStringPos(tablero* table){
-    printf("xd\n");
-    return "hola";
+
+/*
+Nombre: getPosPregunta
+Parametros: tablero* table, int pos
+Retorno:  char*
+Descripcion: Devolvia un string con ? si es que tenia
+Extra: No se uso al final, no funcionaba bien el conjunto :c
+*/
+char* getPosPregunta(tablero* table, int pos){
+    int newpos = pos - 1;
+    if(table -> pregunta[newpos]){
+        return "?";
+    }
+    else if(table -> preguntadoble[newpos]){
+        return "??";
+    }
+    else{
+        return "x";
+    }
 }
 
+/*
+Nombre: getStringPos
+Parametros: tablero* table, int pos
+Retorno:  char*
+Descripcion: Devolvia un string con lo que tenia el
+pos si es que tenia algo.
+Extra: No se uso al final, no funcionaba bien el conjunto :c
+*/
+char* getStringPos(tablero* table, int pos){
+    char* retorno = (char*)malloc(sizeof(char) * 8);
+    strcat(retorno, " x ");
+    if((table -> sentido) == 0){
+        if(pos == 0){
+            strcat(retorno, "i");
+        }
+        else if(pos == 28){
+            strcat(retorno, "f");
+        }
+        else{
+            
+            strcat(retorno, getPosPregunta(table, pos));
+        }
+    }
+    else if((table -> sentido) == 1){
+        if(pos == 0){
+            strcat(retorno, "f");
+        }
+        else if(pos == 28){
+            strcat(retorno, "i");
+        }
+        else{
+            
+            strcat(retorno, getPosPregunta(table, pos));
+        }
+    }
+    else{
+        printf("table -> sentido tiene algo extraño: %d\n", table -> sentido);
+    }
+    return retorno;
+}
+
+/*
+Nombre: showTablero
+Parametros: tablero* table
+Retorno:  void
+Descripcion: Imprime getStringPos en general.
+Extra: No se uso al final, no funcionaba bien el conjunto :c
+*/
 void showTablero(tablero* table){
-    printf("show table xd\n");
-    printf("%s - %s - %s - %s - %s - %s - %s - %s - %s\n", "-", "-", "-","-", "-", "-","-", "-", "-" );
+    char* print0 = getStringPos(table, 0);
+	char* print1 = getStringPos(table, 1);
+    char* print2 = getStringPos(table, 2);
+	char* print3 = getStringPos(table, 3);
+	char* print4 = getStringPos(table, 4);
+	char* print5 = getStringPos(table, 5);
+	char* print6 = getStringPos(table, 6);
+	char* print7 = getStringPos(table, 7);
+	char* print8 = getStringPos(table, 8);
+	char* print9 = getStringPos(table, 9);
+	char* print10 = getStringPos(table, 10);
+	char* print11 = getStringPos(table, 11);
+	char* print12 = getStringPos(table, 12);
+	char* print13 = getStringPos(table, 13);
+	char* print14 = getStringPos(table, 14);
+	char* print15 = getStringPos(table, 15);
+	char* print16 = getStringPos(table, 16);
+	char* print17 = getStringPos(table, 17);
+	char* print18 = getStringPos(table, 18);
+	char* print19 = getStringPos(table, 19);
+	char* print20 = getStringPos(table, 20);
+	char* print21 = getStringPos(table, 21);
+	char* print22 = getStringPos(table, 22);
+	char* print23 = getStringPos(table, 23);
+	char* print24 = getStringPos(table, 24);
+	char* print25 = getStringPos(table, 25);
+	char* print26 = getStringPos(table, 26);
+	char* print27 = getStringPos(table, 27);
+    char* print28 = getStringPos(table, 28);
+    
+    printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n", print20, print21, print22, print23, print24, print25,print26, print27, print28 );
+    printf("| %s |\n", print19);
+    printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n", print18, print17, print16, print15, print14, print13, print12, print11, print10 );
+    printf("                                       | %s |\n", print9 );
+    printf("| %s | %s | %s | %s | %s | %s | %s | %s | %s |\n", print0, print1, print2, print3, print4, print5, print6, print7, print8 );
+
+    free(print0);
+    free(print1);
+    free(print2);
+    free(print3);
+    free(print4);
+    free(print5);
+    free(print6);
+    free(print7);
+    free(print8);
+    free(print9);
+    free(print10);
+    free(print11);
+    free(print12);
+    free(print13);
+    free(print14);
+    free(print15);
+    free(print16);
+    free(print17);
+    free(print18);
+    free(print19);
+    free(print20);
+    free(print21);
+    free(print22);
+    free(print23);
+    free(print24);
+    free(print25);
+    free(print26);
+    free(print27);
+    free(print28);
 }
 
 int main(){
@@ -1018,6 +1158,7 @@ int main(){
     srand(time(NULL) ^ (getpid()<<16)); // Init, para dado()
     int turno = 0;
     int dice;
+    
 
     while(juegoValido(table)){
 
@@ -1031,7 +1172,7 @@ int main(){
 			}
 			turno = jugadorSiguente(table, turno);
             sleep(1);
-            //showTablero(table);
+            showTable(table);
             printLugares(table);
             printf("- - -\n");
 			
