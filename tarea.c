@@ -1,3 +1,4 @@
+// Compilar con -lrt
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -8,6 +9,7 @@
 #include <sys/stat.h>        /* For mode constants */
 #include <fcntl.h>           /* For O_* constants */
 #include <errno.h>
+
 
 #define SMOBJ_NAME  "/tablero"
 
@@ -394,6 +396,14 @@ int* getPrimero(tablero* table){
 	return retorno;
 }
 
+/*
+Nombre: getUltimo
+Parametros: tablero* table
+Retorno: int[2] | int[0] = jugador ultimo 
+int[1] = pos de jug ultimo
+Descripcion: Obtiene el jugador en ultimo
+lugar, y su posicion.
+*/
 int* getUltimo(tablero* table){
 	int minimo = 28;
 	int jugMin = 0;
@@ -554,6 +564,13 @@ int isPreguntaDoble(tablero* table, int jugador){
 	return (table -> preguntadoble[pos-1]);
 }
 
+/*
+Nombre: cambioTurno
+Parametros: tablero* table
+Retorno:  void
+Descripcion: Hace el cambio de 
+sentido de los turnos en table.
+*/
 void cambioTurno(tablero* table){
 	int t = table -> turnos;
 	if (t == 1){
@@ -568,6 +585,13 @@ void cambioTurno(tablero* table){
 	}
 }
 
+/*
+Nombre: soyPrimero
+Parametros: tablero* table, int jugador
+Retorno:  int (bool)
+Descripcion: Retorna 1 si es que el jugador
+especificado es el primero.
+*/
 int soyPrimero(tablero* table, int jugador){
 	if(table -> sentido){
         return soyUltimo(table, jugador);
@@ -584,6 +608,13 @@ int soyPrimero(tablero* table, int jugador){
 	return jugMax == jugador;
 }
 
+/*
+Nombre: soyUltimo
+Parametros: tablero* table, int jugador
+Retorno:  int (bool)
+Descripcion: Retorna 1 si es que el jugador
+especificado es el ultimo.
+*/
 int soyUltimo(tablero* table, int jugador){
     if(table -> sentido){
         return soyPrimero(table, jugador);
@@ -600,6 +631,13 @@ int soyUltimo(tablero* table, int jugador){
 	return jugMin == jugador;
 }
 
+/*
+Nombre: getPosPrimero
+Parametros: tablero* table
+Retorno:  int pos
+Descripcion: Retorna la posicion
+del primer jugador en la tabla.
+*/
 int getPosPrimero(tablero *table){
 	int pos = 0;
 	int i;
@@ -611,6 +649,13 @@ int getPosPrimero(tablero *table){
 	return pos;
 }
 
+/*
+Nombre: getPosUltimo
+Parametros: tablero* table
+Retorno:  int pos
+Descripcion: Retorna la posicion
+del ultimo jugador en la tabla.
+*/
 int getPosUltimo(tablero *table){
 	int pos = 28;
 	int i;
@@ -626,9 +671,13 @@ void moveToBuffer(tablero* table, int jugador){
 	table -> pos[jugador] = table -> buffer;
 }
 
-//getPrimero
-//Retorno: int[2] | int[0] = jugador primero 
-//int[1] = pos de jug primero
+/*
+Nombre: cambiarConUltimo
+Parametros: tablero* table, int jugador
+Retorno:  void
+Descripcion: Hace cambiar al jugador llamante
+con el ultimo de la tabla
+*/
 void cambiarConUltimo(tablero* table, int jugador){
 	if (soyUltimo(table, jugador)){
 		table -> efecto = 0;
@@ -644,6 +693,13 @@ void cambiarConUltimo(tablero* table, int jugador){
 	}
 }
 
+/*
+Nombre: cambiarConUltimo2
+Parametros: tablero* table, int jugador
+Retorno:  void
+Descripcion: Hace el efecto contrario 
+con cambiarConUltimo.
+*/
 void cambiarConUltimo2(tablero* table, int jugador){
 	int buffer2 = table -> buffer2; // jug
 	if (jugador == buffer2){
@@ -651,6 +707,13 @@ void cambiarConUltimo2(tablero* table, int jugador){
 	}
 }
 
+/*
+Nombre: cambiarConPrimero
+Parametros: tablero* table, int jugador
+Retorno:  void
+Descripcion: Hace cambiar al jugador llamante
+con el primero de la tabla
+*/
 void cambiarConPrimero(tablero* table, int jugador){
 	if(soyPrimero(table, jugador)){
 		table -> efecto = 0;
@@ -666,6 +729,13 @@ void cambiarConPrimero(tablero* table, int jugador){
 	}
 }
 
+/*
+Nombre: cambiarConPrimero2
+Parametros: tablero* table, int jugador
+Retorno:  void
+Descripcion: Hace el efecto contrario 
+con cambiarConPrimero.
+*/
 void cambiarConPrimero2(tablero* table, int jugador){
 	int buffer2 = table -> buffer2; // jug
 	if (jugador == buffer2){
@@ -753,6 +823,13 @@ void activarPreguntaDoble(tablero* table, int jugador){
 	hacerEfecto(table, randomPreguntaDoble(), jugador);
 }
 
+/*
+Nombre: avanzarHastaBlanca
+Parametros: tablero* table, int jugador
+Retorno:  void
+Descripcion: Hace avanzar al jugador a 
+la siguente casilla blanca.
+*/
 void avanzarHastaBlanca(tablero* table, int jugador){ // Parece no funcionar bien
 	int pos = table -> pos[jugador];
 	int i = pos;
@@ -819,6 +896,13 @@ void pipeEfecto(int jugadorActivador, int* pipe01, int* pipe10, int* pipe02, int
 	}
 }
 
+/*
+Nombre: efectoSecundario
+Parametros: tablero* table, int jugador
+Retorno:  void
+Descripcion: Hace los efectos en los jugadores
+que no llamaron el efecto.
+*/
 void efectoSecundario(tablero* table, int jugador){
 	int efecto = getEfecto(table);
 	if(efecto == 2){
@@ -839,6 +923,15 @@ void efectoSecundario(tablero* table, int jugador){
 	}
 }
 
+char* getStringPos(tablero* table){
+    printf("xd\n");
+    return "hola";
+}
+
+void showTablero(tablero* table){
+    printf("show table xd\n");
+    printf("%s - %s - %s - %s - %s - %s - %s - %s - %s\n", "-", "-", "-","-", "-", "-","-", "-", "-" );
+}
 
 int main(){
 	//showTable();
@@ -938,7 +1031,9 @@ int main(){
 			}
 			turno = jugadorSiguente(table, turno);
             sleep(1);
+            //showTablero(table);
             printLugares(table);
+            printf("- - -\n");
 			
 
             if(turno == 1){
